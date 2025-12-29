@@ -22,6 +22,26 @@ class Region(models.Model):
         default=1.0,
         help_text="От 0.5 (низкий) до 2.0 (высокий)"
     )
+    avg_salary_coeff = models.FloatField(
+        "Коэффициент зарплат",
+        default=1.0,
+        help_text="Москва=1.0, Регионы=0.6-0.9"
+    )
+    utility_percent = models.FloatField(
+        "Доля коммунальных платежей (%)",
+        default=15.0,
+        help_text="От арендной платы"
+    )
+    food_cost_percent = models.FloatField(
+        "Доля продуктов в выручке (%)",
+        default=35.0,
+        help_text="Варьируется от 30% до 45%"
+    )
+    marketing_percent = models.FloatField(
+        "Доля маркетинга в выручке (%)",
+        default=7.0,
+        help_text="В малых городах может быть 5%, в мегаполисах - до 10%"
+    )
 
     class Meta:
         verbose_name = "Регион"
