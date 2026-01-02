@@ -1,0 +1,384 @@
+{% extends 'base.html' %}
+{% block extra_css %}
+<style>
+    .calculator-card {
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        border-radius: 10px;
+        transition: transform 0.3s;
+    }
+    .calculator-card:hover {
+        transform: translateY(-2px);
+    }
+    .metric-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+    .break-even-line {
+        stroke-dasharray: 5,5;
+        stroke: #e74c3c;
+        stroke-width: 2;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <h1 class="text-center mb-4">Калькулятор рентабельности франшизы</h1>
+
+    <div class="row">
+        <!-- Левая колонка: форма ввода -->
+        <div class="col-lg-6">
+            <div class="card calculator-card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Параметры вашего проекта</h5>
+                </div>
+                <div class="card-body">
+                    <form id="profitability-form">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label class="form-label">Выберите регион</label>
+                            <select class="form-select" id="region-select" required>
+                                <option value="">-- Выберите регион --</option>
+                                {% for region in regions %}
+                                <option value="{{ region.id }}"
+                                        data-rent="{{ region.rent_cost_per_sqm }}"
+                                        data-salary-coeff="{{ region.avg_salary_coeff }}">
+                                    {{ region.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Тип заведения</label>
+                            <select class="form-select" id="establishment-type" required>
+                                <option value="cafe">Кофейня</option>
+                                <option value="burger">Бургерная</option>
+                                <option value="pizza">Пиццерия</option>
+                                <option value="sushi">Суши-бар</option>
+                                <option value="fastfood">Фастфуд</option>
+                            </select>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Площадь помещения (м²)</label>
+                                <input type="number" class="form-control" id="premises-area" value="50" min="30">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Стоимость аренды</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="rent-display" readonly>
+                                    <span class="input-group-text">₽/мес</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Количество работников</label>
+                                <input type="number" class="form-control" id="staff-count" value="4" min="1">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Затраты на ЗП</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="salary-display" readonly>
+                                    <span class="input-group-text">₽/мес</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Паушальный взнос</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="initial-fee" value="500000" min="0">
+                                    <span class="input-group-text">₽</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Роялти (%)</label>
+                                <input type="number" class="form-control" id="royalty-percent" value="5" min="0" max="30" step="0.1">
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">Средний чек</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="avg-check" value="450" min="100">
+                                <span class="input-group-text">₽</span>
+                            </div>
+                        </div>
+
+                        <button type="button" class="btn btn-success w-100" id="calculate-btn">
+                            <i class="bi bi-calculator me-2"></i>Рассчитать рентабельность
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Правая колонка: результаты и графики -->
+        <div class="col-lg-6">
+            <div class="card calculator-card mb-4" id="results-section" style="display:none;">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Результаты анализа</h5>
+                </div>
+                <div class="card-body">
+                    <div class="metric-card">
+                        <h6>Срок окупаемости</h6>
+                        <h3 id="payback-period">- месяцев</h3>
+                    </div>
+
+                    <div class="metric-card">
+                        <h6>Ежемесячная прибыль</h6>
+                        <h3 id="monthly-profit">- ₽</h3>
+                    </div>
+
+                    <div class="metric-card">
+                        <h6>ROI (годовая доходность)</h6>
+                        <h3 id="roi-display">- %</h3>
+                    </div>
+
+                    <div class="alert alert-info mt-3">
+                        <i class="bi bi-exclamation-circle me-2"></i>
+                        <small>Рекомендация: проект считается рентабельным при сроке окупаемости менее 24 месяцев и ROI выше 15% годовых.</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card calculator-card" id="chart-section" style="display:none;">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">График окупаемости</h5>
+                </div>
+                <div class="card-body">
+                    <div id="payback-chart" style="height: 300px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Кэш данных регионов
+    const regionsData = {};
+    document.querySelectorAll('#region-select option').forEach(option => {
+        if (option.value) {
+            regionsData[option.value] = {
+                rent: parseFloat(option.getAttribute('data-rent')),
+                salaryCoeff: parseFloat(option.getAttribute('data-salary-coeff'))
+            };
+        }
+    });
+
+    // Обработчик выбора региона
+    document.getElementById('region-select').addEventListener('change', function() {
+        updateCalculations();
+    });
+
+    // Обработчики изменения параметров
+    ['premises-area', 'staff-count', 'avg-check'].forEach(id => {
+        document.getElementById(id).addEventListener('input', updateCalculations);
+    });
+
+    // Функция обновления расчетов
+    function updateCalculations() {
+        const regionId = document.getElementById('region-select').value;
+        if (!regionId) return;
+
+        const region = regionsData[regionId];
+        const premisesArea = parseFloat(document.getElementById('premises-area').value) || 50;
+        const staffCount = parseFloat(document.getElementById('staff-count').value) || 4;
+
+        // Расчет аренды
+        const monthlyRent = region.rent * premisesArea;
+        document.getElementById('rent-display').value = monthlyRent.toLocaleString('ru-RU');
+
+        // Расчет зарплат (mock данные)
+        const baseSalary = 45000;
+        const avgSalary = baseSalary * region.salaryCoeff;
+        const totalSalary = avgSalary * staffCount;
+        document.getElementById('salary-display').value = totalSalary.toLocaleString('ru-RU');
+    }
+
+    // Обработчик кнопки расчета
+    document.getElementById('calculate-btn').addEventListener('click', function() {
+        const regionId = document.getElementById('region-select').value;
+        if (!regionId) {
+            alert('Пожалуйста, выберите регион');
+            return;
+        }
+
+        // Сбор данных для расчета
+        const data = {
+            region_id: regionId,
+            establishment_type: document.getElementById('establishment-type').value,
+            premises_area: parseFloat(document.getElementById('premises-area').value),
+            staff_count: parseFloat(document.getElementById('staff-count').value),
+            initial_fee: parseFloat(document.getElementById('initial-fee').value),
+            royalty_percent: parseFloat(document.getElementById('royalty-percent').value),
+            avg_check: parseFloat(document.getElementById('avg-check').value),
+            monthly_rent: parseFloat(document.getElementById('rent-display').value.replace(/\s/g, '')),
+            monthly_salary: parseFloat(document.getElementById('salary-display').value.replace(/\s/g, ''))
+        };
+
+        // Отображение секции результатов
+        document.getElementById('results-section').style.display = 'block';
+        document.getElementById('chart-section').style.display = 'block';
+
+        // Прокрутка к результатам
+        document.getElementById('results-section').scrollIntoView({behavior: 'smooth'});
+
+        // Выполнение расчетов
+        calculateProfitability(data);
+    });
+
+    // Функция расчета рентабельности (mock данные)
+    function calculateProfitability(data) {
+        // Базовые коэффициенты для расчета
+        const regionCoeffs = {
+            utility_percent: 15,
+            food_cost_percent: 35,
+            marketing_percent: 7,
+            foot_traffic_index: 1.2
+        };
+
+        // 1. Расчет прогнозируемой выручки
+        const dailyCustomers = data.premises_area * 0.8 * regionCoeffs.foot_traffic_index; // ~0.8 клиента на м²
+        const monthlyRevenue = dailyCustomers * data.avg_check * 30 * 0.85; // 85% загрузка
+
+        // 2. Расчет ежемесячных расходов
+        const utilities = data.monthly_rent * (regionCoeffs.utility_percent / 100);
+        const foodCosts = monthlyRevenue * (regionCoeffs.food_cost_percent / 100);
+        const marketingCosts = monthlyRevenue * (regionCoeffs.marketing_percent / 100);
+        const royalty = monthlyRevenue * (data.royalty_percent / 100);
+
+        const monthlyExpenses = data.monthly_rent + data.monthly_salary + utilities + foodCosts + marketingCosts + royalty;
+
+        // 3. Стартовые затраты
+        const equipmentCost = data.premises_area * 15000;
+        const renovationCost = data.premises_area * 10000;
+        const trainingCost = 150000; // Обучение персонала
+
+        const startupCosts = data.initial_fee + equipmentCost + renovationCost + trainingCost;
+
+        // 4. Финансовые показатели
+        const monthlyProfit = monthlyRevenue - monthlyExpenses;
+        const paybackPeriod = startupCosts / monthlyProfit;
+        const roiAnnual = (monthlyProfit * 12) / startupCosts * 100;
+
+        // Отображение результатов
+        document.getElementById('payback-period').textContent =
+            paybackPeriod < 36 ? paybackPeriod.toFixed(1) : '>36';
+        document.getElementById('monthly-profit').textContent =
+            monthlyProfit.toLocaleString('ru-RU');
+        document.getElementById('roi-display').textContent = roiAnnual.toFixed(1);
+
+        // Генерация графика окупаемости
+        generatePaybackChart(startupCosts, monthlyProfit, monthlyRevenue, monthlyExpenses);
+    }
+
+    // Функция генерации графика окупаемости
+    function generatePaybackChart(startupCosts, monthlyProfit, monthlyRevenue, monthlyExpenses) {
+        const months = Array.from({length: 24}, (_, i) => i + 1);
+        const cumulativeProfit = months.map(m => monthlyProfit * m - startupCosts);
+        const cumulativeRevenue = months.map(m => monthlyRevenue * m);
+        const cumulativeExpenses = months.map(m => startupCosts + monthlyExpenses * m);
+
+        // Поиск точки безубыточности
+        const breakEvenMonth = months.find(m => monthlyProfit * m >= startupCosts);
+
+        const traceProfit = {
+            x: months,
+            y: cumulativeProfit,
+            type: 'scatter',
+            mode: 'lines+markers',
+            name: 'Накопленная прибыль',
+            line: {color: '#2ecc71', width: 3},
+            marker: {size: 8}
+        };
+
+        const traceRevenue = {
+            x: months,
+            y: cumulativeRevenue,
+            type: 'scatter',
+            mode: 'lines',
+            name: 'Выручка',
+            line: {color: '#3498db', width: 2, dash: 'dot'},
+            yaxis: 'y2'
+        };
+
+        const traceExpenses = {
+            x: months,
+            y: cumulativeExpenses,
+            type: 'scatter',
+            mode: 'lines',
+            name: 'Расходы',
+            line: {color: '#e74c3c', width: 2, dash: 'dot'},
+            yaxis: 'y2'
+        };
+
+        const layout = {
+            title: 'Прогноз окупаемости проекта',
+            xaxis: {title: 'Месяцы'},
+            yaxis: {
+                title: 'Накопленная прибыль (₽)',
+                zeroline: true,
+                zerolinecolor: '#969696',
+                zerolinewidth: 1
+            },
+            yaxis2: {
+                title: 'Выручка / Расходы (₽)',
+                overlaying: 'y',
+                side: 'right',
+                showgrid: false
+            },
+            hovermode: 'x unified',
+            margin: {l: 50, r: 50, t: 40, b: 40},
+            shapes: breakEvenMonth ? [{
+                type: 'line',
+                x0: breakEvenMonth,
+                y0: 0,
+                x1: breakEvenMonth,
+                y1: 1,
+                yref: 'paper',
+                line: {
+                    color: '#e74c3c',
+                    width: 2,
+                    dash: 'dash'
+                }
+            }] : [],
+            annotations: breakEvenMonth ? [{
+                x: breakEvenMonth,
+                y: 0,
+                xref: 'x',
+                yref: 'y',
+                text: `Точка безубыточности: ${breakEvenMonth.toFixed(1)} мес`,
+                showarrow: true,
+                arrowhead: 7,
+                ax: 0,
+                ay: -40,
+                bgcolor: 'rgba(231, 76, 60, 0.8)',
+                font: {color: 'white'}
+            }] : []
+        };
+
+        Plotly.newPlot('payback-chart', [traceProfit, traceRevenue, traceExpenses], layout, {
+            responsive: true,
+            displayModeBar: false
+        });
+    }
+
+    // Инициализация расчетов
+    updateCalculations();
+});
+</script>
+{% endblock %}
