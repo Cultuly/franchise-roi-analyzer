@@ -9,7 +9,7 @@ class ProfitabilityAnalysis(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         verbose_name="Пользователь",
-        null=True,  # Для демо-данных разрешаем NULL
+        null=True,
         blank=True
     )
     franchise = models.ForeignKey(
@@ -29,7 +29,6 @@ class ProfitabilityAnalysis(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
-    # Расчётные поля (заполняются автоматически)
     startup_costs = models.DecimalField(
         "Стартовые затраты (руб.)",
         max_digits=15,

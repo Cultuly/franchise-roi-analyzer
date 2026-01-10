@@ -5,6 +5,6 @@ from .views import CalculatorView, CalculateAPIView
 app_name = 'analytics'
 
 urlpatterns = [
-    path('calculator/', CalculatorView.as_view(), name='calculator'),
+    path('', CalculatorView.as_view(), name='calculator'),
     path('api/calculate/', CalculateAPIView.as_view(), name='calculate_api'),
 ]

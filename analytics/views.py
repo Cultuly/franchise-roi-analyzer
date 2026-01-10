@@ -1,10 +1,13 @@
 from django.shortcuts import render
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, View
 from django.http import JsonResponse
 import json
+import logging
 from regions.models import Region
 from .services import ProfitabilityCalculator
 
+
+logger = logging.getLogger(__name__)
 
 class CalculatorView(TemplateView):
     template_name = 'analytics/calculator.html'
@@ -15,7 +18,7 @@ class CalculatorView(TemplateView):
         return context
 
 
-class CalculateAPIView(TemplateView):
+class CalculateAPIView(View):
     """API для расчета рентабельности"""
 
     def post(self, request, *args, **kwargs):
@@ -29,45 +32,55 @@ class CalculateAPIView(TemplateView):
                 if field not in data or data[field] is None:
                     return JsonResponse({'error': f'Отсутствует обязательное поле: {field}'}, status=400)
 
-            # Получение региона
             try:
                 region = Region.objects.get(id=data['region_id'])
             except Region.DoesNotExist:
                 return JsonResponse({'error': 'Регион не найден'}, status=404)
 
-            # Расчёт данных
-            result = ProfitabilityCalculator.calculate_custom(
-                region=region,
-                establishment_type=data['establishment_type'],
-                premises_area=float(data['premises_area']),
-                staff_count=int(data['staff_count']),
-                initial_fee=float(data['initial_fee']),
-                royalty_percent=float(data['royalty_percent']),
-                avg_check=float(data['avg_check'])
-            )
+            try:
+                result = ProfitabilityCalculator.calculate_custom(
+                    region=region,
+                    establishment_type=data['establishment_type'],
+                    premises_area=data['premises_area'],
+                    staff_count=data['staff_count'],
+                    initial_fee=data['initial_fee'],
+                    royalty_percent=data['royalty_percent'],
+                    avg_check=data['avg_check']
+                )
+            except Exception as e:
+                logger.exception("Ошибка при расчете")
+                return JsonResponse({'error': f'Ошибка данных региона: {str(e)}'}, status=400)
 
-            # Генерация данных для графика
             chart_data = ProfitabilityCalculator.generate_payback_chart_data(
                 startup_costs=result['startup_costs'],
-                monthly_profit=result['monthly_profit']
+                monthly_profit=result['monthly_profit'],
+                monthly_revenue=result['monthly_revenue'],
+                monthly_expenses=result['monthly_expenses']
             )
+
+            formatted_results = {
+                'monthly_revenue': float(result['monthly_revenue']),
+                'monthly_expenses': float(result['monthly_expenses']),
+                'monthly_profit': float(result['monthly_profit']),
+                'startup_costs': float(result['startup_costs']),
+                'is_profitable': result['is_profitable'],
+                'daily_customers': float(result['daily_customers'])
+            }
+
+            if result['payback_period'] == float('inf'):
+                formatted_results['payback_period'] = None
+                formatted_results['roi_annual'] = 0.0
+            else:
+                formatted_results['payback_period'] = float(result['payback_period'])
+                formatted_results['roi_annual'] = float(result['roi_annual'])
 
             return JsonResponse({
                 'success': True,
-                'results': {
-                    'monthly_revenue': round(result['monthly_revenue'], 2),
-                    'monthly_expenses': round(result['monthly_expenses'], 2),
-                    'monthly_profit': round(result['monthly_profit'], 2),
-                    'startup_costs': round(result['startup_costs'], 2),
-                    'payback_period': round(result['payback_period'], 1),
-                    'roi_annual': round(result['roi_annual'], 1),
-                    'is_profitable': result['is_profitable'],
-                    'daily_customers': round(result['daily_customers'], 1)
-                },
+                'results': formatted_results,
                 'chart_data': chart_data
             })
-
         except json.JSONDecodeError:
             return JsonResponse({'error': 'Некорректный формат JSON'}, status=400)
         except Exception as e:
-            return JsonResponse({'error': f'Ошибка расчета: {str(e)}'}, status=500)
+            logger.exception("Неожиданная ошибка")
+            return JsonResponse({'error': f'Неожиданная ошибка: {str(e)}'}, status=500)
