@@ -5,8 +5,8 @@ import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = config('SECRET_KEY')
-DEBUG = config('DEBUG', default=False, cast=bool)
+DEBUG=False
+SECRET_KEY='django-insecure-5=cef23q)t0u83bc0!m$tebh*ol6_pfczv!q+p9ma1raeo4n10'
 
 ALLOWED_HOSTS = ['Cultuly.pythonanywhere.com', '127.0.0.1']
 
