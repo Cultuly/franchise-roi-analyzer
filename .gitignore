@@ -12,6 +12,9 @@ venv/
 *.pot
 db.sqlite3
 media/
+staticfiles/
+regions/fixtures/*.json
+rd-md/
 
 # IDE
 .idea/

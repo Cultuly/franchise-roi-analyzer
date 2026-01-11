@@ -1,0 +1,35 @@
+[
+  {
+    "model": "franchises.franchisetype",
+    "pk": 1,
+    "fields": {
+      "name": "Кофейня",
+      "avg_initial_investment": 1500000.00,
+      "avg_monthly_revenue": 850000.00,
+      "royalty_percent": 5.0,
+      "staff_requirements": {"baristas": 2, "manager": 1, "cleaners": 1}
+    }
+  },
+  {
+    "model": "franchises.franchisetype",
+    "pk": 2,
+    "fields": {
+      "name": "Бургерная",
+      "avg_initial_investment": 2200000.00,
+      "avg_monthly_revenue": 1200000.00,
+      "royalty_percent": 6.0,
+      "staff_requirements": {"cooks": 2, "servers": 3, "manager": 1}
+    }
+  },
+  {
+    "model": "franchises.franchisetype",
+    "pk": 3,
+    "fields": {
+      "name": "Пиццерия",
+      "avg_initial_investment": 1800000.00,
+      "avg_monthly_revenue": 950000.00,
+      "royalty_percent": 5.5,
+      "staff_requirements": {"pizza_makers": 2, "servers": 2, "manager": 1}
+    }
+  }
+]
