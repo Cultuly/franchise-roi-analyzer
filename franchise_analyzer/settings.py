@@ -5,10 +5,10 @@ import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-DEBUG=False
-SECRET_KEY='django-insecure-5=cef23q)t0u83bc0!m$tebh*ol6_pfczv!q+p9ma1raeo4n10'
+SECRET_KEY = 'django-insecure-5=cef23q)t0u83bc0!m$tebh*ol6_pfczv!q+p9ma1raeo4n10'
+DEBUG = True
 
-ALLOWED_HOSTS = ['Cultuly.pythonanywhere.com', '127.0.0.1']
+ALLOWED_HOSTS = ['ваш-логин.pythonanywhere.com', '127.0.0.1']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -73,12 +73,13 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+
 LANGUAGE_CODE = 'ru-ru'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-STATIC_URL = '/static/'
+STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]

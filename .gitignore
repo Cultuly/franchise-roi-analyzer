@@ -13,7 +13,6 @@ venv/
 db.sqlite3
 media/
 staticfiles/
-regions/fixtures/*.json
 
 # IDE
 .idea/
