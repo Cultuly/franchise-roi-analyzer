@@ -1,4 +1,4 @@
-dj-config-url
+dj-database-url==2.3.0
 Django==6.0
 pandas==2.3.3
 plotly==6.5.0

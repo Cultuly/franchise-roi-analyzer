@@ -2,7 +2,7 @@ from django.db import models
 
 
 class Region(models.Model):
-    """Регион с демографическими данными (загружается из CSV Росстата)"""
+    """Регион с демографическими данными"""
     name = models.CharField("Название региона", max_length=100, unique=True)
     population = models.PositiveIntegerField("Население")
     avg_income = models.DecimalField(

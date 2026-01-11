@@ -6,8 +6,8 @@ import logging
 from regions.models import Region
 from .services import ProfitabilityCalculator
 
-
 logger = logging.getLogger(__name__)
+
 
 class CalculatorView(TemplateView):
     template_name = 'analytics/calculator.html'
@@ -24,7 +24,6 @@ class CalculateAPIView(View):
     def post(self, request, *args, **kwargs):
         try:
             data = json.loads(request.body)
-
             # Валидация данных
             required_fields = ['region_id', 'establishment_type', 'premises_area',
                                'staff_count', 'initial_fee', 'royalty_percent', 'avg_check']
@@ -58,6 +57,12 @@ class CalculateAPIView(View):
                 monthly_expenses=result['monthly_expenses']
             )
 
+            monthly_chart_data = ProfitabilityCalculator.generate_monthly_chart_data(
+                startup_costs=result['startup_costs'],
+                monthly_revenue=result['monthly_revenue'],
+                monthly_expenses=result['monthly_expenses']
+            )
+
             formatted_results = {
                 'monthly_revenue': float(result['monthly_revenue']),
                 'monthly_expenses': float(result['monthly_expenses']),
@@ -77,8 +82,10 @@ class CalculateAPIView(View):
             return JsonResponse({
                 'success': True,
                 'results': formatted_results,
-                'chart_data': chart_data
+                'chart_data': chart_data,
+                'monthly_chart_data': monthly_chart_data
             })
+
         except json.JSONDecodeError:
             return JsonResponse({'error': 'Некорректный формат JSON'}, status=400)
         except Exception as e:
