@@ -8,7 +8,7 @@
       "avg_income": 85000.00,
       "rent_cost_per_sqm": 3800.00,
       "foot_traffic_index": 1.8,
-      "avg_salary_coeff": 1.0,
+      "avg_salary_coeff": 2.0,
       "utility_percent": 15.0,
       "food_cost_percent": 35.0,
       "marketing_percent": 10.0
@@ -23,7 +23,7 @@
       "avg_income": 68000.00,
       "rent_cost_per_sqm": 2700.00,
       "foot_traffic_index": 1.6,
-      "avg_salary_coeff": 0.9,
+      "avg_salary_coeff": 1.9,
       "utility_percent": 15.0,
       "food_cost_percent": 35.0,
       "marketing_percent": 9.0
@@ -38,7 +38,7 @@
       "avg_income": 55000.00,
       "rent_cost_per_sqm": 1800.00,
       "foot_traffic_index": 1.2,
-      "avg_salary_coeff": 0.8,
+      "avg_salary_coeff": 1.8,
       "utility_percent": 15.0,
       "food_cost_percent": 36.0,
       "marketing_percent": 8.0
@@ -53,7 +53,7 @@
       "avg_income": 58000.00,
       "rent_cost_per_sqm": 2100.00,
       "foot_traffic_index": 1.3,
-      "avg_salary_coeff": 0.85,
+      "avg_salary_coeff": 1.85,
       "utility_percent": 15.0,
       "food_cost_percent": 35.0,
       "marketing_percent": 8.5
@@ -68,7 +68,7 @@
       "avg_income": 52000.00,
       "rent_cost_per_sqm": 1950.00,
       "foot_traffic_index": 1.4,
-      "avg_salary_coeff": 0.82,
+      "avg_salary_coeff": 1.82,
       "utility_percent": 15.0,
       "food_cost_percent": 35.5,
       "marketing_percent": 8.2
@@ -83,7 +83,7 @@
       "avg_income": 51000.00,
       "rent_cost_per_sqm": 1850.00,
       "foot_traffic_index": 1.3,
-      "avg_salary_coeff": 0.8,
+      "avg_salary_coeff": 1.8,
       "utility_percent": 15.0,
       "food_cost_percent": 35.5,
       "marketing_percent": 8.0
@@ -98,7 +98,7 @@
       "avg_income": 50000.00,
       "rent_cost_per_sqm": 1750.00,
       "foot_traffic_index": 1.2,
-      "avg_salary_coeff": 0.78,
+      "avg_salary_coeff": 1.78,
       "utility_percent": 15.0,
       "food_cost_percent": 36.0,
       "marketing_percent": 7.8
@@ -113,7 +113,7 @@
       "avg_income": 49000.00,
       "rent_cost_per_sqm": 1700.00,
       "foot_traffic_index": 1.25,
-      "avg_salary_coeff": 0.76,
+      "avg_salary_coeff": 1.76,
       "utility_percent": 15.0,
       "food_cost_percent": 36.0,
       "marketing_percent": 7.7
@@ -128,7 +128,7 @@
       "avg_income": 48000.00,
       "rent_cost_per_sqm": 1650.00,
       "foot_traffic_index": 1.15,
-      "avg_salary_coeff": 0.75,
+      "avg_salary_coeff": 1.75,
       "utility_percent": 15.0,
       "food_cost_percent": 36.5,
       "marketing_percent": 7.5
@@ -143,7 +143,7 @@
       "avg_income": 50000.00,
       "rent_cost_per_sqm": 1800.00,
       "foot_traffic_index": 1.35,
-      "avg_salary_coeff": 0.79,
+      "avg_salary_coeff": 1.79,
       "utility_percent": 15.0,
       "food_cost_percent": 35.0,
       "marketing_percent": 8.3

@@ -125,10 +125,7 @@ class ProfitabilityCalculator:
         profit_data = []
         months_list = []
 
-        # Одноразовые затраты в первом месяце (часть стартовых затрат)
-        one_time_expenses = float(startup_costs * Decimal('0.2'))  # 20% одноразовых затрат в первый месяц
-
-        # Добавим небольшой рост выручки каждый месяц (2%)
+        one_time_expenses = float(startup_costs * Decimal('0.2'))
         growth_rate = 1.02
 
         for month in range(1, months + 1):
