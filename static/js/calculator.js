@@ -56,7 +56,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('unprofitable-alert').style.display = 'none';
         document.getElementById('export-pdf-btn').style.display = 'none';
 
-        // Отправка запроса на backend
         fetch("/analytics/api/calculate/", {
             method: 'POST',
             headers: {
@@ -89,15 +88,12 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function displayResults(results, chartData, monthlyChartData) {
-        // Отображение секции результатов
         document.getElementById('results-section').style.display = 'block';
         document.getElementById('chart-section').style.display = 'block';
         document.getElementById('revenue-chart-section').style.display = 'block';
 
-        // Прокрутка к результатам
         document.getElementById('results-section').scrollIntoView({behavior: 'smooth'});
 
-        // Проверка рентабельности
         if (results.payback_period === null) {
             document.getElementById('unprofitable-alert').style.display = 'block';
             document.getElementById('unprofitable-alert').textContent = 'Проект нерентабельный: ежемесячные расходы превышают выручку.';
@@ -105,7 +101,6 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('monthly-profit').textContent = results.monthly_profit.toLocaleString('ru-RU', {minimumFractionDigits: 2, maximumFractionDigits: 2});
             document.getElementById('roi-display').textContent = '0.0';
         } else {
-            // Заполнение результатов
             document.getElementById('payback-period').textContent =
                 results.payback_period < 36 ? results.payback_period.toFixed(1) : '>36';
             document.getElementById('monthly-profit').textContent =
@@ -221,7 +216,6 @@ document.addEventListener('DOMContentLoaded', function() {
             scrollZoom: true
         });
 
-        // Также генерируем график для PDF
         Plotly.newPlot('pdf-payback-chart', [traceProfit, traceRevenue, traceExpenses], {
             ...layout,
             width: 1100,
@@ -295,7 +289,6 @@ document.addEventListener('DOMContentLoaded', function() {
             scrollZoom: true
         });
 
-        // Также генерируем график для PDF
         Plotly.newPlot('pdf-revenue-chart', [traceRevenue, traceExpenses, traceProfit], {
             ...layout,
             width: 1100,
@@ -307,7 +300,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function exportToPDF() {
-        // Обновляем даты в PDF-контейнере
         const now = new Date();
         const formattedDate = now.toLocaleDateString('ru-RU', {
             day: '2-digit',
@@ -319,7 +311,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('pdf-date').textContent = formattedDate;
         document.getElementById('pdf-footer-date').textContent = formattedDate;
 
-        // Копируем результаты в PDF-контейнер
         document.getElementById('pdf-payback-period').textContent = document.getElementById('payback-period').textContent;
         document.getElementById('pdf-monthly-profit').textContent = document.getElementById('monthly-profit').textContent;
         document.getElementById('pdf-roi-display').textContent = document.getElementById('roi-display').textContent;
@@ -327,17 +318,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const { jsPDF } = window.jspdf;
         const container = document.getElementById('pdf-export-container');
 
-        // Показываем контейнер для PDF (временно)
         container.style.display = 'block';
 
-        // Конвертируем контейнер в canvas
         html2canvas(container, {
             scale: 2,
             useCORS: true,
             logging: false,
             backgroundColor: '#ffffff'
         }).then(canvas => {
-            // Скрываем контейнер обратно
             container.style.display = 'none';
 
             // Создаем PDF
@@ -355,7 +343,6 @@ document.addEventListener('DOMContentLoaded', function() {
             pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
             pdf.save(`расчет_рентабельности_франшизы_${new Date().toISOString().split('T')[0]}.pdf`);
 
-            // Удаляем графики из PDF-контейнера после экспорта
             document.getElementById('pdf-payback-chart').innerHTML = '';
             document.getElementById('pdf-revenue-chart').innerHTML = '';
         });

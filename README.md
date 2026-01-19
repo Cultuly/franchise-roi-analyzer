@@ -42,7 +42,7 @@
 |
 2. **Создать виртуальное окружение: ```python -m venv venv```**
 |
-3. **Скачать зависимости ```pip install -r requirments.txt```**
+3. **Скачать зависимости ```pip install -r requirements.txt```**
 |
 4. **Выполнить миграции** ```python manage.py migrate```
 |

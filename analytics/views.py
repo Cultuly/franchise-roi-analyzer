@@ -24,7 +24,6 @@ class CalculateAPIView(View):
     def post(self, request, *args, **kwargs):
         try:
             data = json.loads(request.body)
-            # Валидация данных
             required_fields = ['region_id', 'establishment_type', 'premises_area',
                                'staff_count', 'initial_fee', 'royalty_percent', 'avg_check']
             for field in required_fields:
